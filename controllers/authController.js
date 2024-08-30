@@ -58,17 +58,18 @@ const signUp = async (req, res) => {
       res
         .status(200)
         .cookie("jwt", token, {
-          expires: new Date(Date.now() + 604800000),
-          path: "/",
-          sameSite: "None",
-          secure: true,
+          expires: new Date(Date.now() + 604800000), // 7 days
+          httpOnly: true, // Prevents client-side access
+          secure: process.env.NODE_ENV === "production", // Only send over HTTPS
+          sameSite: "lax", // Helps prevent CSRF attacks
+          path: "/", // Available across the whole site
         })
         .cookie("userType", "student", {
-          expires: new Date(Date.now() + 604800000),
-          path: "/",
-
-          sameSite: "None",
-          secure: true,
+          expires: new Date(Date.now() + 604800000), // 7 days
+          httpOnly: true, // Prevents client-side access
+          secure: process.env.NODE_ENV === "production", // Only send over HTTPS
+          sameSite: "lax", // Helps prevent CSRF attacks
+          path: "/", // Available across the whole site
         })
         .json(response);
     });
