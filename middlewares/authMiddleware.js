@@ -4,6 +4,7 @@ const { secretKey } = require('../config');
 const authenticateJWT = (req, res, next) => {
     const token = req.cookies.jwt;
     if (!token) {
+        console.log('no token');
         return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
