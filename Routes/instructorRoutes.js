@@ -11,15 +11,15 @@ const {setMeetingDetails}=require('../controllers/instructorController/setMeetin
 const router = express.Router();
 
 // Public routes
-router.get('/dashboard', authenticateJWT, getInstructorDashboardData);
+router.get('/dashboard',  getInstructorDashboardData);
 // router.get('/dashboard/students', authenticateJWT, getAllStudents);
-router.get('/dashboard/students', authenticateJWT, getAllStudents);
-router.get('/dashboard/student/:id', authenticateJWT, getStudentDetails);
-router.post('/dashboard/setAvailability', authenticateJWT, setAvailability);
-router.get('/dashboard/getAvailability', authenticateJWT, getAvailability);
-router.delete('/dashboard/deleteAvailability/:slotId', authenticateJWT, deleteAvailability);
-router.get('/dashboard/getMeetingDetails', authenticateJWT, getMeetingDetails);
-router.post('/dashboard/addMeetingLink', authenticateJWT, setMeetingDetails);
+router.get('/dashboard/students',  getAllStudents);
+router.get('/dashboard/student/:id',  getStudentDetails);
+router.post('/dashboard/setAvailability',  setAvailability);
+router.get('/dashboard/getAvailability',  getAvailability);
+router.delete('/dashboard/deleteAvailability/:slotId',  deleteAvailability);
+router.get('/dashboard/getMeetingDetails',  getMeetingDetails);
+router.post('/dashboard/addMeetingLink',  setMeetingDetails);
 
 
 

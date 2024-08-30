@@ -14,18 +14,18 @@ const{getPaymentDetails}=require('../controllers/studentController/paymentContro
 const router = express.Router();
 
 // Public routes
-router.get('/dashboard', authenticateJWT, getStudentDashboardData);
-router.get('/dashboard/payments',authenticateJWT,getPaymentDetails);
-router.get('/dashboard/simulators', authenticateJWT, getSimulators);
-router.get('/dashboard/simulators/:title', authenticateJWT, getSimulatorDetails);
-router.get('/dashboard/simulators/:title/:moduleTitle', authenticateJWT, getModuleDetails);
-router.post('/dashboard/simulator/updateQuestion', authenticateJWT, updateQuestion);
+router.get('/dashboard',  getStudentDashboardData);
+router.get('/dashboard/payments',getPaymentDetails);
+router.get('/dashboard/simulators',  getSimulators);
+router.get('/dashboard/simulators/:title',  getSimulatorDetails);
+router.get('/dashboard/simulators/:title/:moduleTitle',  getModuleDetails);
+router.post('/dashboard/simulator/updateQuestion',  updateQuestion);
 
 
-router.get('/dashboard/courses', authenticateJWT, getCourses);
-router.get('/dashboard/getInstructorAvailability', authenticateJWT, getInstructorAvailability);
-router.post('/dashboard/bookSlot', authenticateJWT, bookSlot);
-router.get('/dashboard/course/courseDetail', authenticateJWT, getCourseDetail);
+router.get('/dashboard/courses',  getCourses);
+router.get('/dashboard/getInstructorAvailability',  getInstructorAvailability);
+router.post('/dashboard/bookSlot',  bookSlot);
+router.get('/dashboard/course/courseDetail',  getCourseDetail);
 
 
 
