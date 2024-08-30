@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
-const { LOCAL_DB_URI } = process.env;
+const { LOCAL_DB_URI,ATLAS_DB_URI } = process.env;
 
 const connectToMongoDB = async () => {
     if (mongoose.connection.readyState === 0) { // Check if connection is not already established
         try {
-            await mongoose.connect(LOCAL_DB_URI, {
+            await mongoose.connect(ATLAS_DB_URI, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
                 serverSelectionTimeoutMS: 10000,

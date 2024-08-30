@@ -37,6 +37,10 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./Routes/authRoutes');
 const cors=require('cors');
 const bodyParser=require('body-parser');
+const studentRoutes=require('./Routes/studentRoutes')
+const dataRoutes=require('./Routes/dataRoutes');
+const instructorRoutes=require('./Routes/instructorRoutes');
+const paymentRoutes=require('./Routes/paymentRoutes');
 
 const app = express();
 
@@ -48,6 +52,10 @@ app.use(cookieParser());
 
 // Use routes
 app.use('/auth', authRoutes);
+app.use('/student',studentRoutes);
+app.use('/courses',dataRoutes);
+app.use('/instructor',instructorRoutes);
+app.use('/payment',paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

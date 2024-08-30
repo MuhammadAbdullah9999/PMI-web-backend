@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { saltRounds, secretKey } = require('../config');
-const User = require('../model/userModel');
-const {connectToMongoDB}=require('../services/authService')
+const { Student, Instructor, Payment } = require('../model/dbModel');
+const { connectToMongoDB } = require('../services/authService');
 
 const signUp = async (req, res) => {
     const userData = {
@@ -14,34 +14,53 @@ const signUp = async (req, res) => {
 
     try {
         await connectToMongoDB();
-        const existingUser = await User.findOne({ email: userData.email });
+
+        // Check if the email exists in the Student or Instructor collections
+        const existingUser = await Student.findOne({ email: userData.email }) ||
+            await Instructor.findOne({ email: userData.email });
 
         if (existingUser) {
             return res.status(409).json({ message: "User already exists!" });
         }
 
+        // Check if the email exists in the Payment collection
+        const paymentRecord = await Payment.findOne({ email: userData.email });
+
         const hashedPassword = bcrypt.hashSync(userData.password, saltRounds);
         userData.password = hashedPassword;
 
-        const user = new User(userData);
+        const user = new Student(userData); // Save user in Student model
         await user.save();
 
-        jwt.sign(userData, secretKey, { expiresIn: "1h" }, (err, token) => {
+        // If a payment record exists, associate it with the new user
+        if (paymentRecord) {
+            await updateUserCoursesAndSimulators(user, paymentRecord);
+        }
+
+        const tokenPayload = {
+            email: user.email,
+            id: user._id,
+            userType: 'student',
+        };
+
+        jwt.sign(tokenPayload, secretKey, { expiresIn: "24h" }, (err, token) => {
             if (err) {
                 return res.status(500).json({ message: "Error generating token" });
             }
 
             const response = {
-                name: userData.name,
-                email: userData.email,
+                name: user.name,
+                email: user.email,
+                userType: 'student',
             };
 
             res.status(200)
                 .cookie("jwt", token, {
-                    expires: new Date(Date.now() + 3600000),
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'Lax',
+                    expires: new Date(Date.now() + 604800000),
+                    path: '/',
+                })
+                .cookie("userType", 'student', {
+                    expires: new Date(Date.now() + 604800000),
                     path: '/',
                 })
                 .json(response);
@@ -52,14 +71,74 @@ const signUp = async (req, res) => {
     }
 };
 
+const updateUserCoursesAndSimulators = async (user, payment) => {
+    const { courseId: courseIdArray, courseName: courseNameArray, expiryDate: expiryDateArray } = payment;
+
+    for (let i = 0; i < courseIdArray.length; i++) {
+        const courseId = courseIdArray[i].id;
+        const courseName = courseNameArray[i].title;
+        const courseType = courseNameArray[i].type; // Get the type (course or simulator)
+        const expiryDate = expiryDateArray[i].date;
+
+        if (courseType === 'course') {
+            const isCourseEnrolled = user.coursesEnrolled.some(
+                (enrolledCourse) => enrolledCourse.courseId.toString() === courseId.toString()
+            );
+
+            if (!isCourseEnrolled) {
+                user.coursesEnrolled.push({
+                    courseId: courseId,
+                    manualCourseId: courseName,
+                    progress: 0,
+                    startDate: new Date(),
+                    endDate: expiryDate,
+                });
+            }
+        } else if (courseType === 'simulator') {
+            const isSimulatorPurchased = user.simulatorsPurchased.some(
+                (purchasedSimulator) => purchasedSimulator.simulatorId.toString() === courseId.toString()
+            );
+
+            if (!isSimulatorPurchased) {
+                user.simulatorsPurchased.push({
+                    simulatorId: courseId,
+                    manualSimulatorId: courseName,
+                    startDate: new Date(),
+                    endDate: expiryDate,
+                    modules: []
+                });
+            }
+        }
+    }
+
+    await user.save();
+};
+
+
 const signIn = async (req, res) => {
     const { email, password } = req.body;
 
     try {
         await connectToMongoDB();
-        const user = await User.findOne({ email });
+
+        // Check if the user exists in the Student or Instructor collection
+        let user = await Student.findOne({ email });
+        let userType = 'student'; // Assume student by default
 
         if (!user) {
+            user = await Instructor.findOne({ email });
+            if (user) {
+                userType = 'instructor'; // Update to instructor if found in Instructor collection
+            }
+        }
+
+        if (!user) {
+            // Check if the email exists in the Payment collection
+            const paymentRecord = await Payment.findOne({ email });
+            if (paymentRecord) {
+                return res.status(403).json({ message: "Please complete your registration." });
+            }
+
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
@@ -69,35 +148,39 @@ const signIn = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        const userData = {
-            name: user.name,
+        const tokenPayload = {
             email: user.email,
+            id: user._id,
+            userType: userType, // Include userType in the token payload
         };
 
-        jwt.sign(userData, secretKey, { expiresIn: "1h" }, (err, token) => {
+        jwt.sign(tokenPayload, secretKey, { expiresIn: "24h" }, (err, token) => {
             if (err) {
                 return res.status(500).json({ message: "Error generating token" });
             }
 
             res.status(200)
                 .cookie("jwt", token, {
-                    expires: new Date(Date.now() + 3600000),
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'Lax',
+                    expires: new Date(Date.now() + 604800000),
                     path: '/',
                 })
-                .json(userData);
+                .cookie("userType", userType, {
+                    expires: new Date(Date.now() + 604800000),
+                    path: '/',
+                })
+                .json({ email: user.email, name: user.name, userType: userType });
         });
     } catch (error) {
         console.error('Error in signIn:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
-const logout=async(req,res)=>{
-   await res.clearCookie('jwt');
-    res.status(200).send({message:"Logged out successfully"});
-}
+
+const logout = async (req, res) => {
+    await res.clearCookie('jwt');
+    res.status(200).send({ message: "Logged out successfully" });
+};
+
 module.exports = {
     signUp,
     signIn,
