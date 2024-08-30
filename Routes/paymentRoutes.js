@@ -150,8 +150,8 @@ router.post('/checkout', async (req, res) => {
       const session = await stripe.checkout.sessions.create({
           line_items: lineItems,
           mode: 'payment',
-           success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:3000/cancel`,
+           success_url: `https://pmmi-web-frontend.onrender.com//success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://pmmi-web-frontend.onrender.com//cancel`,
       });
 
       res.json({ url: session.url });

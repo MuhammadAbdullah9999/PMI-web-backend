@@ -58,10 +58,14 @@ const signUp = async (req, res) => {
                 .cookie("jwt", token, {
                     expires: new Date(Date.now() + 604800000),
                     path: '/',
+                    sameSite: 'None', // Set SameSite to None
+                    // secure: true, // Ensure cookies are sent over HTTPS
                 })
                 .cookie("userType", 'student', {
                     expires: new Date(Date.now() + 604800000),
                     path: '/',
+                    sameSite: 'None', // Set SameSite to None
+                    // secure: true, // Ensure cookies are sent over HTTPS
                 })
                 .json(response);
         });
