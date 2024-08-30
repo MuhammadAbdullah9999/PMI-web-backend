@@ -60,13 +60,13 @@ const signUp = async (req, res) => {
                     path: '/',
                     sameSite: 'None', // Set SameSite to None
                   
-                    domain: '.onrender.com', 
+                    // domain: '.onrender.com', 
                 })
                 .cookie("userType", 'student', {
                     expires: new Date(Date.now() + 604800000),
                     path: '/',
                     sameSite: 'None', // Set SameSite to None
-                    domain: '.onrender.com', 
+                    // domain: '.onrender.com', 
                 })
                 .json(response);
         });
