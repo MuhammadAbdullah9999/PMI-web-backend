@@ -62,7 +62,6 @@ const signUp = async (req, res) => {
           path: "/",
           sameSite: "None",
           secure: true,
-          domain: ".onrender.com", // Share cookies across subdomains
         })
         .cookie("userType", "student", {
           expires: new Date(Date.now() + 604800000),
@@ -70,7 +69,6 @@ const signUp = async (req, res) => {
 
           sameSite: "None",
           secure: true,
-          domain: ".onrender.com", // Share cookies across subdomains
         })
         .json(response);
     });

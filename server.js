@@ -43,12 +43,14 @@ const instructorRoutes=require('./Routes/instructorRoutes');
 const paymentRoutes=require('./Routes/paymentRoutes');
 
 const app = express();
-const corsOptions = {
-    origin: 'https://pmmi-web-frontend.onrender.com', // Replace with your frontend URL
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
-app.use(cors(corsOptions));
-// app.use(cors({ origin: true, credentials: true }));
+// const corsOptions = {
+//     origin: 'https://pmmi-web-frontend.onrender.com', // Replace with your frontend URL
+//     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+// };
+// app.use(cors(corsOptions));
+
+
+app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
