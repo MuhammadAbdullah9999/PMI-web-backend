@@ -59,13 +59,14 @@ const signUp = async (req, res) => {
                     expires: new Date(Date.now() + 604800000),
                     path: '/',
                     sameSite: 'None', // Set SameSite to None
-                    // secure: true, // Ensure cookies are sent over HTTPS
+                  
+                    domain: '.onrender.com', 
                 })
                 .cookie("userType", 'student', {
                     expires: new Date(Date.now() + 604800000),
                     path: '/',
                     sameSite: 'None', // Set SameSite to None
-                    // secure: true, // Ensure cookies are sent over HTTPS
+                    domain: '.onrender.com', 
                 })
                 .json(response);
         });
